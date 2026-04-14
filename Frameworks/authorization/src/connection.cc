@@ -26,7 +26,9 @@ connection_t::connection_t (std::string const& socketPath)
 	struct sockaddr_un addr = { 0, AF_UNIX };
 	ASSERT_LT(socketPath.size(), sizeof(addr.sun_path));
 	strcpy(addr.sun_path, socketPath.c_str());
+#if defined(__APPLE__) || defined(__FreeBSD__)
 	addr.sun_len = SUN_LEN(&addr);
+#endif
 
 	connect(_socket, (sockaddr*)&addr, sizeof(addr));
 }

@@ -44,12 +44,20 @@ namespace oak
 
 		passwd* entry = path::passwd_entry();
 
+#if defined(__APPLE__) || defined(__FreeBSD__)
 		int mib[2] = { CTL_USER, USER_CS_PATH };
 		size_t len = 0;
 		sysctl(mib, 2, nullptr, &len, nullptr, 0);
 		std::string path(len, '\0');
 		sysctl(mib, 2, &path[0], &len, nullptr, 0);
 		path.pop_back();
+#else
+		// Linux: use confstr(_CS_PATH) for the system default PATH.
+		size_t pl = ::confstr(_CS_PATH, nullptr, 0);
+		std::string path(pl ? pl : 128, '\0');
+		if(pl) { ::confstr(_CS_PATH, &path[0], pl); path.pop_back(); }
+		else   { path = "/usr/local/bin:/usr/bin:/bin"; }
+#endif
 
 		res.emplace("HOME",    entry->pw_dir);
 		res.emplace("PATH",    path);

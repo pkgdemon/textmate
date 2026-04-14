@@ -31,6 +31,7 @@ static bool swap_and_unlink (std::string const& src, std::string const& dst, std
 		return false;
 	}
 
+#if defined(__APPLE__)
 	if(exchangedata(src.c_str(), dst.c_str(), 0) == 0)
 	{
 		bool res = unlink(src.c_str()) == 0;
@@ -45,6 +46,11 @@ static bool swap_and_unlink (std::string const& src, std::string const& dst, std
 		perrorf("exchangedata(\"%s\", \"%s\")", src.c_str(), dst.c_str());
 		errno = ENOTSUP;
 	}
+#else
+	/* No exchangedata(2) on Linux/FreeBSD. Skip to the rename-based fallback
+	 * (the code below uses renameat/rename for atomic replacement). */
+	errno = ENOTSUP;
+#endif
 
 	if(errno == ENOTSUP || errno == ENOENT)
 	{
@@ -96,6 +102,7 @@ static std::string create_path (std::string const& path)
 
 namespace path
 {
+#if defined(__APPLE__)
 	struct filemanager_strategy_t : intermediate_t::strategy_t
 	{
 		filemanager_strategy_t (NSURL* destURL)
@@ -155,6 +162,7 @@ namespace path
 		NSURL* _tempDirectoryURL;
 		NSURL* _tempURL;
 	};
+#endif
 
 	struct atomic_strategy_t : intermediate_t::strategy_t
 	{
@@ -211,6 +219,7 @@ namespace path
 			if(stat(dest.c_str(), &buf) == 0)
 				_mode = buf.st_mode;
 
+#if defined(__APPLE__)
 			NSURL* destURL = [NSURL fileURLWithPath:to_ns(dest) isDirectory:NO];
 
 			NSError* error;
@@ -222,6 +231,12 @@ namespace path
 			if(atomicSave == atomic_t::always || atomicSave == atomic_t::external_volumes && !isInternalVolume || atomicSave == atomic_t::remote_volumes && !isLocalVolume)
 					_strategy.reset(new filemanager_strategy_t(destURL));
 			else	_strategy.reset(new non_atomic_strategy_t(dest));
+#else
+			/* GNUstep: skip NSURL volume probing; use path-based atomic rename. */
+			if(atomicSave == atomic_t::always || atomicSave == atomic_t::external_volumes || atomicSave == atomic_t::remote_volumes)
+					_strategy.reset(new atomic_strategy_t(dest));
+			else	_strategy.reset(new non_atomic_strategy_t(dest));
+#endif
 		}
 		else
 		{

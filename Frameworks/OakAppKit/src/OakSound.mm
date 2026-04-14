@@ -1,3 +1,4 @@
+#if defined(__APPLE__)
 #import "OakSound.h"
 #import <io/path.h>
 
@@ -45,3 +46,4 @@ void OakPlayUISound (OakSoundIdentifier aSound)
 		}
 	}
 }
+#endif

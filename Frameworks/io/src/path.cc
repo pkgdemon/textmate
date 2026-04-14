@@ -8,6 +8,13 @@
 #include <regexp/regexp.h>
 #include <regexp/format_string.h>
 #include <cf/cf.h>
+#if defined(__linux__)
+#include <mntent.h>
+#endif
+#if defined(__APPLE__) || defined(__FreeBSD__)
+#include <sys/mount.h>
+#include <sys/param.h>
+#endif
 
 namespace path
 {
@@ -752,9 +759,36 @@ namespace path
 
 		if(errno == EXDEV)
 		{
+#if defined(__APPLE__)
 			if(copyfile(src, dst, nullptr, COPYFILE_ALL | COPYFILE_MOVE | COPYFILE_UNLINK) == 0)
 				return true;
-			perrorf("copyfile(\"%s\", \"%s\", nullptr, COPYFILE_ALL | COPYFILE_MOVE | COPYFILE_UNLINK)", src, dst);
+			perrorf("copyfile(\"%s\", \"%s\")", src, dst);
+#else
+			// Cross-filesystem move fallback: copy then unlink.
+			int in = ::open(src, O_RDONLY|O_CLOEXEC);
+			if(in >= 0)
+			{
+				struct stat st;
+				if(::fstat(in, &st) == 0)
+				{
+					int out = ::open(dst, O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, st.st_mode & 07777);
+					if(out >= 0)
+					{
+						char buf[64*1024];
+						ssize_t n; bool ok = true;
+						while((n = ::read(in, buf, sizeof(buf))) > 0)
+						{
+							if(::write(out, buf, n) != n) { ok = false; break; }
+						}
+						if(n < 0) ok = false;
+						::close(out);
+						if(ok) { ::close(in); if(::unlink(src) == 0) return true; }
+					}
+				}
+				::close(in);
+			}
+			perrorf("copy+unlink fallback (\"%s\" -> \"%s\")", src, dst);
+#endif
 		}
 		else
 		{
@@ -771,17 +805,42 @@ namespace path
 	{
 		std::vector<std::string> res;
 
+#if defined(__APPLE__) || defined(__FreeBSD__)
 		struct statfs* mnts;
 		int mnt_count = getmntinfo(&mnts, MNT_WAIT); // getfsstat
 		for(int i = 0; i < mnt_count; ++i)
 		{
-			// We explicitly ignore /dev since it does not have the proper flag set <rdar://5923503> — fixed in 10.6
 			char const* path = mnts[i].f_mntonname;
+#if defined(MNT_DONTBROWSE)
 			if(mnts[i].f_flags & MNT_DONTBROWSE || strcmp(path, "/dev") == 0)
 				continue;
+#else
+			if(strcmp(path, "/dev") == 0 || strcmp(path, "/proc") == 0 || strcmp(path, "/sys") == 0)
+				continue;
+#endif
 			res.push_back(path);
 		}
-
+#else   // Linux: read /proc/mounts via getmntent
+		if(FILE* fp = ::setmntent("/proc/mounts", "r"))
+		{
+			struct mntent* me;
+			while((me = ::getmntent(fp)))
+			{
+				char const* path = me->mnt_dir;
+				if(!path) continue;
+				// Skip pseudo / virtual filesystems.
+				if(strcmp(path, "/dev") == 0 || strcmp(path, "/proc") == 0 || strcmp(path, "/sys") == 0 || strcmp(path, "/run") == 0)
+					continue;
+				char const* t = me->mnt_type;
+				if(t && (strcmp(t, "proc") == 0 || strcmp(t, "sysfs") == 0 || strcmp(t, "devtmpfs") == 0 ||
+				         strcmp(t, "tmpfs") == 0 || strcmp(t, "cgroup") == 0 || strcmp(t, "cgroup2") == 0 ||
+				         strcmp(t, "devpts") == 0 || strcmp(t, "mqueue") == 0 || strcmp(t, "securityfs") == 0))
+					continue;
+				res.push_back(path);
+			}
+			::endmntent(fp);
+		}
+#endif
 		return res;
 	}
 

@@ -1,3 +1,4 @@
+#if defined(__APPLE__)
 #import "OakZoomingIcon.h"
 
 @implementation OakZoomingIcon
@@ -55,3 +56,4 @@
 	return [[OakZoomingIcon alloc] initWithIcon:icon rect:aRect];
 }
 @end
+#endif

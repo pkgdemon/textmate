@@ -1,3 +1,4 @@
+#if defined(__APPLE__)
 #import "OakFinderTag.h"
 #import "NSColor Additions.h"
 #import <OakFoundation/OakFoundation.h>
@@ -112,3 +113,4 @@
 	return [tags copy];
 }
 @end
+#endif

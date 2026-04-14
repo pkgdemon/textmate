@@ -37,12 +37,20 @@ std::string OakStackDump (int linesToSkip)
 
 		signal(SIGPIPE, SIG_DFL);
 
+#if defined(__APPLE__) || defined(__FreeBSD__)
 		int mib[2] = { CTL_USER, USER_CS_PATH };
 		size_t len = 0;
 		sysctl(mib, 2, NULL, &len, NULL, 0);
 		char buf[len + 5];
 		strcpy(buf, "PATH=");
 		sysctl(mib, 2, buf + 5, &len, NULL, 0);
+#else
+		size_t pl = confstr(_CS_PATH, NULL, 0);
+		if(!pl) pl = 128;
+		char buf[pl + 5];
+		strcpy(buf, "PATH=");
+		confstr(_CS_PATH, buf + 5, pl);
+#endif
 
 		char const* envp[] = { "LANG=en_US.UTF-8", "LC_CTYPE=en_US.UTF-8", buf, NULL };
 		execve(argv[0], (char* const*)argv, (char* const*)envp);
@@ -103,18 +111,25 @@ void OakPrintBadAssertion (char const* lhs, char const* op, char const* rhs, std
 @implementation OakExceptionHandlerDelegate
 + (void)load
 {
+#if defined(__APPLE__)
 	@autoreleasepool {
 		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(enableAllExceptions:) name:NSApplicationDidFinishLaunchingNotification object:NSApp];
 	}
+#endif
 }
 
 + (void)enableAllExceptions:(NSNotification*)aNotification
 {
+#if defined(__APPLE__)
 	static OakExceptionHandlerDelegate* exceptionDelegate = [self new];
 	[NSExceptionHandler.defaultExceptionHandler setExceptionHandlingMask:NSLogAndHandleEveryExceptionMask];
 	[NSExceptionHandler.defaultExceptionHandler setDelegate:exceptionDelegate];
+#else
+	(void)aNotification;
+#endif
 }
 
+#if defined(__APPLE__)
 - (BOOL)exceptionHandler:(NSExceptionHandler*)sender shouldLogException:(NSException*)exception mask:(NSUInteger)mask
 {
 	if([[exception name] isEqualToString:@"FSExecutionErrorException"])
@@ -123,6 +138,7 @@ void OakPrintBadAssertion (char const* lhs, char const* op, char const* rhs, std
 	abort();
 	return YES;
 }
+#endif
 @end
 
 void OakBadAssertion (char const* name, char const* format, ...)

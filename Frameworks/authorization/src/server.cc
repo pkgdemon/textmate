@@ -72,8 +72,14 @@ connection_t connect_to_auth_server (osx::authorization_t const& auth, bool retr
 		int fd = socket(AF_UNIX, SOCK_STREAM, 0);
 		if(fd != -1)
 		{
+#if defined(__APPLE__) || defined(__FreeBSD__)
 			struct sockaddr_un addr = { 0, AF_UNIX, kAuthSocketPath };
 			addr.sun_len = SUN_LEN(&addr);
+#else
+			struct sockaddr_un addr = {};
+			addr.sun_family = AF_UNIX;
+			strncpy(addr.sun_path, kAuthSocketPath, sizeof(addr.sun_path)-1);
+#endif
 
 			if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != -1)
 			{

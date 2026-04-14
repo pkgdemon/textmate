@@ -1,3 +1,13 @@
 build.ninja
 local.rave
 Frameworks/license/src/revoked_serials.cc
+
+# capnp-generated C++ bindings (regenerated from *.capnp schemas)
+**/*.capnp.c++
+**/*.capnp.h
+
+# stray build artifacts from ad-hoc compile tests during the GNUstep port
+*.o
+*.a
+/tmp-build/
+/render.o

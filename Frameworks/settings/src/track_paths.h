@@ -63,8 +63,12 @@ private:
 		{
 			for(auto pair : _records)
 			{
+#if defined(__APPLE__)
 				dispatch_source_cancel(pair.second->source);
 				dispatch_release(pair.second->source);
+#else
+				(void)pair;
+#endif
 			}
 
 			_records.clear();
@@ -72,6 +76,7 @@ private:
 
 		void watch (int fd)
 		{
+#if defined(__APPLE__)
 			dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, fd, DISPATCH_VNODE_DELETE|DISPATCH_VNODE_WRITE|DISPATCH_VNODE_EXTEND|DISPATCH_VNODE_RENAME|DISPATCH_VNODE_REVOKE, dispatch_get_main_queue());
 			dispatch_source_set_cancel_handler(source, ^{
 				close(fd);
@@ -84,6 +89,13 @@ private:
 
 			_records.emplace(fd, record);
 			dispatch_resume(source);
+#else
+			/* GNUstep: no-op file-change watcher. Settings will always re-read
+			 * (is_changed returns false → treated as not-yet-seen). Real fix
+			 * is an inotify-backed dispatch source.                           */
+			auto record = std::make_shared<record_t>((dispatch_source_t)nullptr);
+			_records.emplace(fd, record);
+#endif
 		}
 
 		void unwatch (int fd)
@@ -91,8 +103,12 @@ private:
 			auto pair = _records.find(fd);
 			if(pair != _records.end())
 			{
+#if defined(__APPLE__)
 				dispatch_source_cancel(pair->second->source);
 				dispatch_release(pair->second->source);
+#else
+				close(fd);
+#endif
 				_records.erase(pair);
 			}
 		}

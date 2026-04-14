@@ -1,3 +1,4 @@
+#if defined(__APPLE__)
 #import "OakTransitionViewController.h"
 
 @interface OakTransitionViewController ()
@@ -169,3 +170,4 @@
 	}
 }
 @end
+#endif

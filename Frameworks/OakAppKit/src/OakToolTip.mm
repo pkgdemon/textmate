@@ -39,7 +39,7 @@ static __weak OakToolTip* LastToolTip;
 		[self setHasShadow:YES];
 		[self setLevel:NSStatusWindowLevel];
 
-		field = [[NSTextField alloc] initWithFrame:self.contentView.bounds];
+		field = [[NSTextField alloc] initWithFrame:[(NSView*)self.contentView bounds]];
 		[field setEditable:NO];
 		[field setSelectable:NO];
 		[field setBezeled:NO];
@@ -49,6 +49,7 @@ static __weak OakToolTip* LastToolTip;
 		[field setFont:defaultFont];
 		[field setStringValue:@"This is a nice little code block"];
 
+#if defined(__APPLE__)
 		if(@available(macos 10.14, *))
 		{
 			NSVisualEffectView* effectView = [[NSVisualEffectView alloc] initWithFrame:self.contentView.frame];
@@ -60,6 +61,9 @@ static __weak OakToolTip* LastToolTip;
 			NSAppearanceName appearanceName = [NSApp.effectiveAppearance bestMatchFromAppearancesWithNames:@[ NSAppearanceNameAqua, NSAppearanceNameDarkAqua ]];
 			if([appearanceName isEqualToString:NSAppearanceNameDarkAqua])
 				[field setBordered:YES];
+#else
+		if(0) {
+#endif
 		}
 		else
 		{

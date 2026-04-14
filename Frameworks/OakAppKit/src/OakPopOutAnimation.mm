@@ -1,3 +1,4 @@
+#if defined(__APPLE__)
 #import "OakPopOutAnimation.h"
 #import <oak/debug.h>
 
@@ -172,3 +173,4 @@ void OakShowPopOutAnimation (NSView* parentView, NSRect popOutRect, NSImage* anI
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 }
 @end
+#endif

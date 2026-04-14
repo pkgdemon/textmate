@@ -3,6 +3,8 @@
 
 #import "prelude.c"
 
+#if defined(__APPLE__)
+
 #import <AudioToolbox/AudioToolbox.h>
 #import <Carbon/Carbon.h>
 #import <CommonCrypto/CommonDigest.h>
@@ -17,5 +19,11 @@
 
 #import <os/activity.h>
 #import <os/log.h>
+
+#else /* GNUstep / Linux / FreeBSD */
+
+#include "prelude-gnustep.h"
+
+#endif
 
 #endif /* end of include guard: PRELUDE_MAC_H_X1SR1JB2 */

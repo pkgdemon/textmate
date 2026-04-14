@@ -2,6 +2,21 @@
 #include "path.h"
 #include <cf/cf.h>
 
+#if !defined(__APPLE__)
+namespace path
+{
+	bool is_text_clipping (std::string const& path)
+	{
+		return extension(path) == "textClipping";
+	}
+	std::string resource (std::string const& path, ResType theType, ResID theID)
+	{
+		(void)path; (void)theType; (void)theID;
+		return NULL_STR;
+	}
+}
+#else
+
 namespace path
 {
 	bool is_text_clipping (std::string const& path)
@@ -46,3 +61,4 @@ namespace path
 	}
 
 } /* path */
+#endif

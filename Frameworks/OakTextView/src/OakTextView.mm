@@ -1387,7 +1387,7 @@ doScroll:
 				if(styles.underlined())
 					CFAttributedStringSetAttribute(str, CFRangeMake(0, CFAttributedStringGetLength(str)), kCTUnderlineStyleAttributeName, cf::wrap(kCTUnderlineStyleSingle));
 				if(styles.strikethrough())
-					CFAttributedStringSetAttribute(str, CFRangeMake(0, CFAttributedStringGetLength(str)), (CFStringRef)NSStrikethroughStyleAttributeName, cf::wrap(kCTUnderlineStyleSingle));
+					CFAttributedStringSetAttribute(str, CFRangeMake(0, CFAttributedStringGetLength(str)), (__bridge CFStringRef)NSStrikethroughStyleAttributeName, cf::wrap(kCTUnderlineStyleSingle));
 				CFAttributedStringReplaceAttributedString(res, CFRangeMake(CFAttributedStringGetLength(res), 0), str);
 
 				CFRelease(str);
@@ -3664,7 +3664,7 @@ static char const* kOakMenuItemTitle = "OakMenuItemTitle";
 + (NSArray*)dropTypes
 {
 	return @[ NSColorPboardType, NSFilenamesPboardType,
-		@"WebURLsWithTitlesPboardType", (NSString*)kUTTypeURL, @"public.url-name", NSURLPboardType,
+		@"WebURLsWithTitlesPboardType", (__bridge NSString*)kUTTypeURL, @"public.url-name", NSURLPboardType,
 		NSPasteboardTypeString ];
 }
 
