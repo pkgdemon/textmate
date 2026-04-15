@@ -41,7 +41,11 @@ namespace
 		{
 			struct statfs sfsb;
 			if(statfs(path.c_str(), &sfsb) == 0)
+#if defined(__APPLE__)
 				return strcasecmp(sfsb.f_fstypename, "msdos") == 0 && strcasecmp(sfsb.f_fstypename, "exfat") == 0;
+#else
+				return false; /* Linux statfs doesn't carry filesystem name */
+#endif
 			perrorf("is_inode_valid: statfs(\"%s\")", path.c_str());
 		}
 		return true;

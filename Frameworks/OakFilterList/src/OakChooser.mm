@@ -27,9 +27,9 @@
 		NSTextField* folderTextField = OakCreateLabel(@"", [NSFont controlContentFontOfSize:10]);
 
 		fileTextField.lineBreakMode        = NSLineBreakByTruncatingTail;
-		fileTextField.cell.lineBreakMode   = NSLineBreakByTruncatingTail;
+		((NSCell*)fileTextField.cell).lineBreakMode   = NSLineBreakByTruncatingTail;
 		folderTextField.lineBreakMode      = NSLineBreakByTruncatingHead;
-		folderTextField.cell.lineBreakMode = NSLineBreakByTruncatingHead;
+		((NSCell*)folderTextField.cell).lineBreakMode = NSLineBreakByTruncatingHead;
 
 		NSDictionary* views = @{ @"icon": imageView, @"file": fileTextField, @"folder": folderTextField, @"close": closeButton };
 		OakAddAutoLayoutViewsToSuperview([views allValues], self);

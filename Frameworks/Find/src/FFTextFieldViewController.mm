@@ -128,7 +128,7 @@ static void* kFirstResponderContext = &kFirstResponderContext;
 		_textField.font       = OakControlFont();
 		_textField.formatter  = self.syntaxFormatter;
 		_textField.delegate   = self;
-		_textField.cell.wraps = YES;
+		((NSTextFieldCell*)_textField.cell).wraps = YES;
 	}
 	return _textField;
 }
@@ -196,7 +196,7 @@ static void* kFirstResponderContext = &kFirstResponderContext;
 	if(command == @selector(moveDown:))
 	{
 		NSRange lastNewline    = [textView.string rangeOfString:@"\n" options:NSBackwardsSearch];
-		NSRange insertionPoint = textView.selectedRanges.lastObject.rangeValue;
+		NSRange insertionPoint = ((NSValue*)textView.selectedRanges.lastObject).rangeValue;
 
 		if(lastNewline.location == NSNotFound || lastNewline.location < NSMaxRange(insertionPoint))
 			return [self showHistory:self], YES;

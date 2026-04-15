@@ -155,7 +155,8 @@ bundles::item_ptr OakShowMenuForBundleItems (std::vector<bundles::item_ptr> cons
 		}
 	}
 
-	if([menu popUpMenuPositioningItem:nil atLocation:pos inView:view])
+	[menu popUpMenuPositioningItem:nil atLocation:pos inView:view];
+	if(menuTarget.selectedItemUUID)
 		return bundles::lookup(to_s(menuTarget.selectedItemUUID));
 
 	return bundles::item_ptr();

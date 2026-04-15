@@ -170,7 +170,9 @@ static NSImage* ImageNamed (NSString* imageName)
 	dispatch_once(&onceToken, ^{
 		NSMutableDictionary* res = [NSMutableDictionary dictionary];
 		NSDictionary* dict = [NSDictionary dictionaryWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"DocumentTypes/bindings" ofType:@"plist"]];
-		[dict enumerateKeysAndObjectsUsingBlock:^(NSString* file, NSArray<NSString*>* extensions, BOOL* stop){
+		[dict enumerateKeysAndObjectsUsingBlock:^(id<NSCopying> fileKey, id extensionsObj, BOOL* stop){
+			NSString* file = (NSString*)fileKey;
+			NSArray<NSString*>* extensions = (NSArray<NSString*>*)extensionsObj;
 			for(NSString* extension in extensions)
 				res[extension.lowercaseString] = file;
 		}];

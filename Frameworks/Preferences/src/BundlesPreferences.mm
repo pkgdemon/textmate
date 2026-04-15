@@ -369,7 +369,7 @@ static NSUserInterfaceItemIdentifier const kTableColumnIdentifierDescription = @
 	NSMutableArray* descriptors = [_arrayController.sortDescriptors mutableCopy];
 
 	NSInteger i = 0;
-	while(i < descriptors.count && ![_arrayController.sortDescriptors[i].key isEqualToString:key])
+	while(i < descriptors.count && ![((NSSortDescriptor*)_arrayController.sortDescriptors[i]).key isEqualToString:key])
 		++i;
 
 	if(i == descriptors.count)

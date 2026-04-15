@@ -401,6 +401,7 @@ static NSString* GetHardwareInfo (int field, BOOL isInteger = NO)
 - (NSString*)signingKeyForPublicKeyString:(NSString*)publicKeyString
 {
 	id res = nil;
+#if defined(__APPLE__)
 	if(NSData* publicKeyData = [publicKeyString dataUsingEncoding:NSUTF8StringEncoding])
 	{
 		SecItemImportExportKeyParameters params = { .keyUsage = nullptr, .keyAttributes = nullptr };
@@ -424,6 +425,7 @@ static NSString* GetHardwareInfo (int field, BOOL isInteger = NO)
 			}
 		}
 	}
+#endif
 	return res;
 }
 
@@ -433,6 +435,7 @@ static NSString* GetHardwareInfo (int field, BOOL isInteger = NO)
 		return NO;
 
 	BOOL res = NO;
+#if defined(__APPLE__)
 	if(NSData* signatureData = [[NSData alloc] initWithBase64EncodedString:encodedSignature options:0])
 	{
 		if(SecKeyRef publicKey = (SecKeyRef)CFBridgingRetain([self signingKeyForPublicKeyString:publicKeyString]))
@@ -464,6 +467,7 @@ static NSString* GetHardwareInfo (int field, BOOL isInteger = NO)
 	{
 		os_log_error(OS_LOG_DEFAULT, "Unable to decode signature: %{public}@", encodedSignature);
 	}
+#endif
 	return res;
 }
 @end

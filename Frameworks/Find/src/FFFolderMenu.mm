@@ -23,7 +23,11 @@ static NSMutableArray* FoldersAtPath (NSString* folder)
 		std::string const path = path::join(startPath, entry->d_name);
 		if(entry->d_type == DT_DIR && lstat(path.c_str(), &buf) == 0)
 		{
-			if(!S_ISDIR(buf.st_mode) || (buf.st_flags & UF_HIDDEN))
+			if(!S_ISDIR(buf.st_mode)
+#if defined(__APPLE__)
+			   || (buf.st_flags & UF_HIDDEN)
+#endif
+			   )
 				continue;
 
 			NSString* folderPath = [NSString stringWithCxxString:path];

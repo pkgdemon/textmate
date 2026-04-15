@@ -150,7 +150,7 @@ static NSString* MBInternalDumpMenu (NSMenu* menu, NSInteger indent)
 				[row.other addObject:@".systemMenu = MBMenuTypeWindows"];
 			else if(submenu == NSApp.helpMenu)
 				[row.other addObject:@".systemMenu = MBMenuTypeHelp"];
-			else if(submenu.itemArray.firstObject.action == @selector(clearRecentDocuments:))
+			else if(((NSMenuItem*)submenu.itemArray.firstObject).action == @selector(clearRecentDocuments:))
 				[row.other addObject:@".systemMenu = MBMenuTypeOpenRecent"];
 			else if(submenu.delegate)
 				[row.other addObject:@".delegate = «unknown»"];

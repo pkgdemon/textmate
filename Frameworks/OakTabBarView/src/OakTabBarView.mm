@@ -78,7 +78,7 @@ static NSString* const OakTabItemPasteboardType = @"com.macromates.TextMate.tabI
 
 - (NSArray*)writableTypesForPasteboard:(NSPasteboard*)aPasteboard
 {
-	return OakIsEmptyString(_path) ? @[ OakTabItemPasteboardType ] : @[ OakTabItemPasteboardType, (NSString*)kUTTypeFileURL ];
+	return OakIsEmptyString(_path) ? @[ OakTabItemPasteboardType ] : @[ OakTabItemPasteboardType, (__bridge NSString*)kUTTypeFileURL ];
 }
 
 - (NSPasteboardWritingOptions)writingOptionsForType:(NSString*)aType pasteboard:(NSPasteboard*)aPasteboard
@@ -88,7 +88,7 @@ static NSString* const OakTabItemPasteboardType = @"com.macromates.TextMate.tabI
 
 - (id)pasteboardPropertyListForType:(NSString*)aType
 {
-	if([aType isEqualToString:(NSString*)kUTTypeFileURL])
+	if([aType isEqualToString:(__bridge NSString*)kUTTypeFileURL])
 		return [NSURL fileURLWithPath:_path].absoluteString;
 
 	NSMutableDictionary* dict = [NSMutableDictionary dictionary];
@@ -383,14 +383,14 @@ static void* kOakTabViewSelectedContext  = &kOakTabViewSelectedContext;
 	if(_tabItem)
 	{
 		self.accessibilityElement                     = YES;
-		self.closeButton.cell.accessibilityElement    = YES;
-		self.overflowButton.cell.accessibilityElement = YES;
+		((NSCell*)self.closeButton.cell).accessibilityElement    = YES;
+		((NSCell*)self.overflowButton.cell).accessibilityElement = YES;
 	}
 	else
 	{
 		self.accessibilityElement                     = NO;
-		self.closeButton.cell.accessibilityElement    = NO;
-		self.overflowButton.cell.accessibilityElement = NO;
+		((NSCell*)self.closeButton.cell).accessibilityElement    = NO;
+		((NSCell*)self.overflowButton.cell).accessibilityElement = NO;
 
 		self.textField.alphaValue      = 0.0;
 		self.backgroundView.alphaValue = 0.1;
@@ -517,7 +517,7 @@ static void* kOakTabViewSelectedContext  = &kOakTabViewSelectedContext;
 
 - (void)windowDidChangeMainOrKey:(NSNotification*)aNotification
 {
-	BOOL isActive = self.window.isKeyWindow || self.window.isMainWindow || self.isInFullScreenMode;
+	BOOL isActive = self.window.isKeyWindow || self.window.isMainWindow || ((NSView*)self).isInFullScreenMode;
 	_textField.textColor = isActive ? NSColor.secondaryLabelColor : NSColor.tertiaryLabelColor;
 }
 
@@ -1009,7 +1009,7 @@ static void* kOakTabViewSelectedContext  = &kOakTabViewSelectedContext;
 	CGFloat x = 0;
 	for(OakTabItem* tabItem in _tabItems)
 	{
-		if(tabItem.tabView && !tabItem.tabView.hidden)
+		if(tabItem.tabView && !tabItem.tabView.isHidden)
 		{
 			CGFloat width = NSWidth(tabItem.tabView.frame);
 
@@ -1036,7 +1036,7 @@ static void* kOakTabViewSelectedContext  = &kOakTabViewSelectedContext;
 
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender
 {
-	sender.animatesToDestination = YES;
+	((NSObject*)sender).animatesToDestination = YES;
 	return YES;
 }
 
@@ -1048,7 +1048,7 @@ static void* kOakTabViewSelectedContext  = &kOakTabViewSelectedContext;
 	NSInteger toIndex   = _dropTabAtIndex;
 
 	__block OakTabItem* tabItem = nil;
-	[sender enumerateDraggingItemsWithOptions:0 forView:self classes:@[ [NSPasteboardItem class] ] searchOptions:@{ } usingBlock:^(NSDraggingItem* draggingItem, NSInteger idx, BOOL* stop){
+	[(NSObject*)sender enumerateDraggingItemsWithOptions:0 forView:self classes:@[ [NSPasteboardItem class] ] searchOptions:@{ } usingBlock:^(NSDraggingItem* draggingItem, NSInteger idx, BOOL* stop){
 		CGFloat x0 = _dropTabAtIndex > 0 ? NSMaxX(_tabItems[_dropTabAtIndex-1].tabView.frame) : NSMinX(self.bounds);
 		CGFloat x1 = NSMinX((_dropTabAtIndex < _tabItems.count ? _tabItems[_dropTabAtIndex].tabView : self.backgroundView).frame);
 		draggingItem.draggingFrame = NSMakeRect(x0, NSMinY(self.bounds), x1 - x0, NSHeight(self.bounds));

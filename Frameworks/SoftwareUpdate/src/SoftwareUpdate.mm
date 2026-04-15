@@ -475,7 +475,7 @@ NSString* const kSoftwareUpdateChannelCanary                                   =
 
 - (void)takeURLToDownloadFrom:(NSButton*)sender
 {
-	[self downloadSoftwareUpdateAtURL:sender.cell.representedObject];
+	[self downloadSoftwareUpdateAtURL:((NSCell*)sender.cell).representedObject];
 }
 
 - (void)downloadSoftwareUpdateAtURL:(NSURL*)downloadURL
@@ -494,7 +494,7 @@ NSString* const kSoftwareUpdateChannelCanary                                   =
 			self.progressViewController.messageTextField.stringValue = [NSString stringWithFormat:@"Downloaded %@", downloadURL.lastPathComponent];
 
 			self.buttons[0].enabled                = YES;
-			self.buttons[0].cell.representedObject = extractedArchiveURL;
+			((NSCell*)self.buttons[0].cell).representedObject = extractedArchiveURL;
 			self.buttons[0].action                 = @selector(takeURLToInstallFrom:);
 
 			_downloadedArchiveURL = extractedArchiveURL; // Will be deleted in viewDidDisappear
@@ -506,7 +506,7 @@ NSString* const kSoftwareUpdateChannelCanary                                   =
 
 			self.buttons[0].title                  = @"Retry";
 			self.buttons[0].enabled                = YES;
-			self.buttons[0].cell.representedObject = downloadURL;
+			((NSCell*)self.buttons[0].cell).representedObject = downloadURL;
 			self.buttons[0].action                 = @selector(takeURLToDownloadFrom:);
 		}
 	}];
@@ -534,7 +534,7 @@ NSString* const kSoftwareUpdateChannelCanary                                   =
 
 - (void)takeURLToInstallFrom:(NSButton*)sender
 {
-	NSURL* applicationURL = sender.cell.representedObject;
+	NSURL* applicationURL = ((NSCell*)sender.cell).representedObject;
 
 	if([self isInstallableApplicationAtURL:applicationURL])
 	{

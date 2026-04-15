@@ -14,11 +14,11 @@ std::string to_s (NSString* aString)
 	if(!aString)
 		return NULL_STR;
 
-	CFRange range = CFRangeMake(0, CFStringGetLength((CFStringRef)aString));
+	CFRange range = CFRangeMake(0, CFStringGetLength((__bridge CFStringRef)aString));
 	CFIndex byteCount;
-	CFStringGetBytes((CFStringRef)aString, range, kCFStringEncodingUTF8, 0, false, NULL, 0, &byteCount);
+	CFStringGetBytes((__bridge CFStringRef)aString, range, kCFStringEncodingUTF8, 0, false, NULL, 0, &byteCount);
 	std::string res(byteCount, '\0');
-	CFStringGetBytes((CFStringRef)aString, range, kCFStringEncodingUTF8, 0, false, (UInt8*)&res[0], byteCount, NULL);
+	CFStringGetBytes((__bridge CFStringRef)aString, range, kCFStringEncodingUTF8, 0, false, (UInt8*)&res[0], byteCount, NULL);
 	return res;
 }
 

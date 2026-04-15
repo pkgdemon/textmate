@@ -799,7 +799,7 @@ static NSButton* OakCreateHistoryButton (NSString* toolTip)
 		[openPanel beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse result) {
 			if(result == NSModalResponseOK)
 			{
-				self.otherFolder  = openPanel.URLs.lastObject.filePathURL.path;
+				self.otherFolder  = ((NSURL*)openPanel.URLs.lastObject).filePathURL.path;
 				self.searchTarget = FFSearchTargetOther;
 			}
 			else if(self.window.isVisible) // Reset selected item in pop-up button
@@ -813,7 +813,7 @@ static NSButton* OakCreateHistoryButton (NSString* toolTip)
 		[openPanel beginWithCompletionHandler:^(NSInteger result) {
 			if(result == NSModalResponseOK)
 			{
-				self.otherFolder  = openPanel.URLs.lastObject.filePathURL.path;
+				self.otherFolder  = ((NSURL*)openPanel.URLs.lastObject).filePathURL.path;
 				self.searchTarget = FFSearchTargetOther;
 				[self showWindow:self];
 			}

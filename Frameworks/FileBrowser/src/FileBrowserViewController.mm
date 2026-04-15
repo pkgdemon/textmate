@@ -2073,7 +2073,7 @@ static NSMutableIndexSet* MutableLongestCommonSubsequence (NSArray* lhs, NSArray
 
 - (id <NSPasteboardWriting>)outlineView:(NSOutlineView*)outlineView pasteboardWriterForItem:(FileItem*)item
 {
-	return item.URL.filePathURL;
+	return (id<NSPasteboardWriting>)item.URL.filePathURL;
 }
 
 // ===============================
@@ -2159,8 +2159,8 @@ static NSMutableIndexSet* MutableLongestCommonSubsequence (NSArray* lhs, NSArray
 - (void)beginPreviewPanelControl:(QLPreviewPanel*)previewPanel
 {
 	_previewItems = self.previewableItems;
-	previewPanel.delegate   = self;
-	previewPanel.dataSource = self;
+	previewPanel.delegate   = (id<QLPreviewPanelDelegate>)self;
+	previewPanel.dataSource = (id<QLPreviewPanelDataSource>)self;
 }
 
 - (void)endPreviewPanelControl:(QLPreviewPanel*)previewPanel

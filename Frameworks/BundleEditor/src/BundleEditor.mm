@@ -264,8 +264,8 @@ static be::entry_ptr parent_for_column (NSBrowser* aBrowser, NSInteger aColumn, 
 		[_splitViewController addSplitViewItem:[NSSplitViewItem splitViewItemWithViewController:self.browserViewController]];
 		[_splitViewController addSplitViewItem:[NSSplitViewItem splitViewItemWithViewController:self.documentViewController]];
 
-		_splitViewController.splitViewItems[0].minimumThickness = 50;
-		_splitViewController.splitViewItems[0].canCollapse      = YES;
+		((NSSplitViewItem*)_splitViewController.splitViewItems[0]).minimumThickness = 50;
+		((NSSplitViewItem*)_splitViewController.splitViewItems[0]).canCollapse      = YES;
 	}
 	return _splitViewController;
 }
@@ -308,7 +308,7 @@ static be::entry_ptr parent_for_column (NSBrowser* aBrowser, NSInteger aColumn, 
 		[_windowSplitViewController addSplitViewItem:[NSSplitViewItem splitViewItemWithViewController:self.splitViewController]];
 		[_windowSplitViewController addSplitViewItem:[NSSplitViewItem splitViewItemWithViewController:_propertiesViewController]];
 
-		_windowSplitViewController.splitViewItems[0].holdingPriority = NSLayoutPriorityDefaultLow - 1;
+		((NSSplitViewItem*)_windowSplitViewController.splitViewItems[0]).holdingPriority = NSLayoutPriorityDefaultLow - 1;
 	}
 	return _windowSplitViewController;
 }
@@ -369,9 +369,11 @@ static be::entry_ptr parent_for_column (NSBrowser* aBrowser, NSInteger aColumn, 
 	if(aType == bundles::kItemTypeBundle || bundle)
 	{
 		std::map<std::string, std::string> environment = variables_for_path(oak::basic_environment());
+#if defined(__APPLE__)
 		ABMutableMultiValue* value = [[[ABAddressBook sharedAddressBook] me] valueForProperty:kABEmailProperty];
 		if(NSString* email = [value valueAtIndex:[value indexForIdentifier:[value primaryIdentifier]]])
 			environment.emplace("TM_ROT13_EMAIL", decode::rot13(to_s(email)));
+#endif
 
 		auto item = std::make_shared<bundles::item_t>(oak::uuid_t().generate(), aType == bundles::kItemTypeBundle ? bundles::item_ptr() : bundle, aType);
 		plist::dictionary_t plist = plist::load(to_s(path));

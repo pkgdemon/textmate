@@ -234,7 +234,7 @@ static NSTextView* MyCreateTextView ()
 
 - (BOOL)textView:(NSTextView*)aTextView doCommandBySelector:(SEL)aSelector
 {
-	BOOL res = aSelector == @selector(insertNewline:) && !aTextView.editable && self.window.defaultButtonCell;
+	BOOL res = aSelector == @selector(insertNewline:) && !aTextView.isEditable && self.window.defaultButtonCell;
 	if(res)
 		[self.window.defaultButtonCell performClick:self];
 	return res;
